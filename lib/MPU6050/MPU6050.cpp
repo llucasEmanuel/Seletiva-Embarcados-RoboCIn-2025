@@ -5,6 +5,10 @@ MPU6050::MPU6050(PinName sda, PinName scl) : i2c_(sda, scl) {
     this->i2c_.frequency(FM_FREQ);
 }
 
+void MPU6050::setup() {
+    this->setGyroConfig();
+}
+
 void MPU6050::burstRead(char *regAddress, char *buffer, int numBytes) {
     // Endereço de 8 bits da MPU para passar no I2C
     char mpuAddress8bit = MPU6050_ADDRESS << 1;
@@ -54,15 +58,31 @@ void MPU6050::getGyroOut(short *buffer) {
     buffer[2] = zOut;
 }
 
-void MPU6050::setGyroConfig(unsigned char fs_sel) {
-    // Não seta valores fora do intervalo do fs_sel
-    if (fs_sel > 4) return;
+void MPU6050::setGyroConfig(unsigned char xg_st, unsigned char yg_st, unsigned char zg_st, unsigned char fs_sel) {
+    // Não seta valores fora do intervalo
+    // Valores disponíveis para fs_sel = {0, 1, 2, 3} e bits de self-test = {0, 1}
+    if (xg_st > 1 || yg_st > 1 || zg_st > 1 || fs_sel > 3) return;
 
-    // Endereço de 8 bits da MPU para passar no I2C
-    char mpuAddress8bit = MPU6050_ADDRESS << 1;
+    // Desloca os valores para condizer ao formato do byte esperado pelo registrador
+    xg_st = xg_st << 7;
+    yg_st = yg_st << 6;
+    zg_st = zg_st << 5;
+    fs_sel = fs_sel << 3;
 
-    // Registrador onde ocorrerá escrita    
+    // Endereço do registrador de configuração
     char regAddress = GYRO_CONFIG;
 
-    // PRECISA ESCREVER O BYTE TODO NO REGISTRADOR (Vai precisar dos bits de self-test)
+    // Monta o byte que será escrito no registrador
+    char byte = xg_st | yg_st | zg_st | fs_sel;
+
+    // Escreve no registrador
+    this->writeReg(&regAddress, &byte);
 }
+
+void MPU6050::getGyroConfig(char *buffer) {
+    // Endereço do registrador de configuração
+    char regAddress = GYRO_CONFIG;
+
+    this->readReg(&regAddress, buffer);
+}
+

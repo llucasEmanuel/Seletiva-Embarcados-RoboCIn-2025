@@ -35,6 +35,9 @@ public:
     // Construtor seta os pinos SDA e SCL como sendo os do mestre (nucleo f767zi) por padrão 
     MPU6050(PinName sda = MASTER_SDA, PinName scl = MASTER_SCL);
 
+    // Inicializa os registradores necessários da MPU6050
+    void setup();
+
     // Lê numBytes registradores de forma sequencial partindo de regAddress e armazenando os dados em buffer. 
     // Para isso o tamanho do buffer deve ser de no mínimo numBytes.
     // Essa função garante que todos os dados serão do mesmo sample.
@@ -49,8 +52,16 @@ public:
     // Escreve os outputs do giroscópio em buffer
     void getGyroOut(short *buffer);
 
-    // 
-    void setGyroConfig(unsigned char fs_sel);
+    // Altera a configuração do giroscópio (self-tests e full scale range)
+    void setGyroConfig(
+        unsigned char xg_st = 0, // Não faz self-test no x
+        unsigned char yg_st = 0, // Não faz self-test no x
+        unsigned char zg_st = 0, // Não faz self-test no x
+        unsigned char fs_sel = 3 // Full scale range = +- 2000 graus/s -> 16.4 LSB/(grau/s)
+    );
+
+    // Obtém a configuração atual do registrador para saber o full scale range
+    void getGyroConfig(char *buffer);
 
 private:
     // Instanciação da comunicação I2C
