@@ -32,8 +32,8 @@
 // Interface de comunicação do mestre com a MPU6050
 class MPU6050 {
 public:
-    // Construtor seta os pinos SDA e SCL como sendo os do mestre (nucleo f767zi) por padrão 
-    MPU6050(PinName sda = MASTER_SDA, PinName scl = MASTER_SCL);
+    // Construtor recebe os pinos da comunicação I2C
+    MPU6050(PinName sda, PinName scl);
 
     // Inicializa os registradores necessários da MPU6050
     void setup();
