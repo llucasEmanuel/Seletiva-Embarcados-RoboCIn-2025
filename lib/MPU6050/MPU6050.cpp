@@ -1,4 +1,5 @@
 #include "MPU6050.h"
+#include <fstream>
 
 MPU6050::MPU6050(PinName sda, PinName scl) : i2c_(sda, scl) {
     // Comunicação com os regs deve ser feita a 400kHz
@@ -6,6 +7,7 @@ MPU6050::MPU6050(PinName sda, PinName scl) : i2c_(sda, scl) {
 }
 
 void MPU6050::setup() {
+    // Configura a sensibilidade correta do sensor
     this->setGyroConfig();
 }
 
@@ -85,4 +87,33 @@ void MPU6050::getGyroConfig(char *buffer) {
 
     this->readReg(&regAddress, buffer);
 }
+
+double MPU6050::getGyroOffset() {
+    // Caminho do arquivo com os samples de velocidade angular em que o robô está parado
+    const char path[] = "test/calibration/steady_w.txt";
+
+    // Abre o arquivo para leitura
+    std::ifstream file(path);
+
+    // Se não encontrar o arquivo retorna offset 0 por padrão
+    if (!file) return 0;
+    // Se encontrar calcula a média das velocidades angulares nele
+    else {
+        double offset, acumOffset = 0;
+        int numSamples = 0;
+
+        // Lê linha por linha do arquivo
+        while (file >> offset) {
+            acumOffset += offset;
+            numSamples++;
+        }
+
+        offset = acumOffset / ((double) numSamples);
+
+        file.close();
+
+        return offset;
+    }
+}
+
 

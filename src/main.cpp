@@ -16,6 +16,10 @@ int main() {
         if (gyroOdm.getGyroFlag() == true) {
             // Calcula a velocidade angular (rad/s) de cada eixo
             gyroOdm.getAngularVelocity(angVelocity);
+            
+            // O método de calcular a variação angular deve ser chamado após o cálculo da velocidade angular
+            // Dessa forma, ele conesgue usar os valores do sample mais recente e ter um resultado atualizado
+            // Quanto à gyroFlag_, ela deve ser setada como 'false' após os dois terminarem
         }
     }
 

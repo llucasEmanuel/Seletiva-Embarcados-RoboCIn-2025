@@ -63,6 +63,9 @@ public:
     // Obtém a configuração atual do registrador para saber o full scale range
     void getGyroConfig(char *buffer);
 
+    // Retorna o offset de leitura do sensor que será usado para calibrá-lo
+    double getGyroOffset();
+
 private:
     // Instanciação da comunicação I2C
     I2C i2c_;

@@ -8,12 +8,15 @@ log = pd.read_csv(CSV_PATH)
 w_list = log["local_w"].tolist()
 theta_list = log["odometry_theta"].tolist()
 
-W_PATH = "test/calibration/data/local_w.txt"
-with open(W_PATH, "w") as file:
-    for w in w_list:
-        file.write(f"{w}\n")
+# Encontra o indice da lista em que o theta != 0, ou seja ele não está mais parado
+non_steady_index = 0
+for i in range(len(theta_list)):
+    if theta_list[i] != 0:
+        non_steady_index = i
+        break
 
-THETA_PATH = "test/calibration/data/odometry_theta.txt"
-with open(THETA_PATH, "w") as file:
-    for theta in theta_list:
-        file.write(f"{theta}\n")
+# Escreve apenas as velocidades angulares de quando o robô está parado no steady_w.txt
+W_PATH = "test/calibration/data/steady_w.txt"
+with open(W_PATH, "w") as file:
+    for i in range(non_steady_index):
+        file.write(f"{w_list[i]}\n")

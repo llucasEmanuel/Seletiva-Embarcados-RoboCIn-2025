@@ -33,19 +33,17 @@ private:
     // Flag que indica quando os dados do giroscópio podem ser coletados
     bool gyroFlag_;
 
+    // Offset de leitura do giroscópio
+    double offset_;
+
+    // Fator usado na conversão para velocidade angular
+    double sensitivity_;
+
     // Obtém o valor da sensibilidade do giroscópio
     double getGyroSensitivity();
 
     // Obtém o output bruto do giroscópio e armazena em buffer
     void getGyroRawOut(short *buffer);
-
-    // Remover o offset da leitura do sensor (deve ser feito a cada leitura) 
-    // Valor do offset vai ser calculado em outra função
-    // Sobrescreve o valor de gyroOut pelo valor calibrado
-    void calibrateGyroOut(short *gyroOut);
-
-    // Obtém o outputs processados e livres de ruído do giroscópio e armazena em bufer
-    void getGyroCorrectedOut(short *buffer);
 
     // Converte a velocidade angular de graus/s para rad/s
     void degreesToRadians(double *angVelocity);
