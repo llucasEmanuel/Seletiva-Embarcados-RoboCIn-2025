@@ -11,19 +11,30 @@ int main() {
     double angVelocity[3] = {0., 0., 0.};
 
     // Variação angular com base na velocidade angular do eixo z
-    double angVariation = 0;
+    double angVariation = 0.;
 
+    // Converte o GYRO_FREQ em double
+    const double sampleTimeSec = std::chrono::duration<double>(GYRO_FREQ).count();
+
+    // TODO: Tirar a espera ocupada quando a flag é falsa
+    // Talvez fazer a thread dormir dps de executar o corpo do loop e tirar a interrupção
+    
     // Loop de execução
     while (true) {
         // Só executa se a flag estiver true (a cada 10ms -> frequência fixa)
         if (gyroOdm.getGyroFlag() == true) {
-            // Calcula a velocidade angular (rad/s) de cada eixo
+
+            // Variável que armazena o valor da velocidade angular em z do sample anterior  
+            double prevAngVelocity = angVelocity[2];
+
+            // Atualiza a velocidade angular (rad/s) de cada eixo e inverte a gyroFlag_
             gyroOdm.getAngularVelocity(angVelocity);
 
-            
-            // O método de calcular a variação angular deve ser chamado após o cálculo da velocidade angular
-            // Dessa forma, ele conesgue usar os valores do sample mais recente e ter um resultado atualizado
-            // Quanto à gyroFlag_, ela deve ser setada como 'false' após os dois terminarem
+            // Calcula a velocidade média entre os samples para ter um resultado mais preciso
+            double avgAngVelocity = (prevAngVelocity + angVelocity[2]) / 2.;
+
+            // Calcula a variação angular considerando o intervalo de 10ms entre os samples
+            angVariation += (avgAngVelocity * sampleTimeSec);
         }
     }
 

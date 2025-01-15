@@ -9,6 +9,8 @@
 // Frequência em que os dados do giroscópio serão coletados
 #define GYRO_FREQ 10ms
 
+
+
 // Classe que implementa os métodos de odometria apenas do giroscópio
 class GyroOdometry {
 public:
@@ -24,8 +26,6 @@ public:
     // Retorna o valor da gyroFlag_
     bool getGyroFlag();
 
-    // Atualiza o ângulo do robô com base nas variações angulares dos últimos 2 samples
-    void updateAngle(double *angVelocity);
 private:
     // Instanciação da MPU-6050, que se comunicará com a Nucleo f767zi
     MPU6050 mpu_;
