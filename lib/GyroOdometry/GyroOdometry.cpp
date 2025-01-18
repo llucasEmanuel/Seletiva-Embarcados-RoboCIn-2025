@@ -1,7 +1,6 @@
 #include "GyroOdometry.h"
 
 GyroOdometry::GyroOdometry(PinName sda, PinName scl) : mpu_(sda, scl) {
-    this->gyroFlag_ = false;
     this->offset_ = 0.;
     this->sensitivity_ = 16.4; // +- 2000 graus/s
 }
@@ -15,9 +14,6 @@ void GyroOdometry::setup() {
 
     // Faz o cálculo do offset com base nos dados do arquivo apenas na inicialização
     this->offset_ = this->mpu_.getGyroOffset();
-
-    // Gera interrupção que altera flag de coleta de dados do giroscópio a cada 10ms
-    this->gyroTicker_.attach(callback(this, &GyroOdometry::changeFlag), GYRO_FREQ); // Checar se roda com 10s ou 10ms
 }
 
 void GyroOdometry::getAngularVelocity(double *angVelocity) {
@@ -35,13 +31,6 @@ void GyroOdometry::getAngularVelocity(double *angVelocity) {
 
     // Converte de graus/s para rad/s
     this->degreesToRadians(angVelocity);
-
-    // Reseta a flag para garantir que o métodos só executa 10ms depois
-    this->gyroFlag_ = false;
-}
-
-bool GyroOdometry::getGyroFlag() {
-    return this->gyroFlag_;
 }
 
 double GyroOdometry::getGyroSensitivity() {
@@ -86,8 +75,4 @@ void GyroOdometry::degreesToRadians(double *angVelocity) {
     for (int i = 0; i < 3; i++) {
         angVelocity[i] = convFactor * angVelocity[i];
     }
-}
-
-void GyroOdometry::changeFlag() {
-    this->gyroFlag_ = !this->gyroFlag_;
 }

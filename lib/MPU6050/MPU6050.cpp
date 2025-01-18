@@ -99,7 +99,7 @@ double MPU6050::getGyroOffset() {
     if (!file) return 0;
     // Se encontrar calcula a média das velocidades angulares nele
     else {
-        double offset, acumOffset = 0;
+        double offset = 0, acumOffset = 0;
         int numSamples = 0;
 
         // Lê linha por linha do arquivo
@@ -108,7 +108,9 @@ double MPU6050::getGyroOffset() {
             numSamples++;
         }
 
-        offset = acumOffset / ((double) numSamples);
+        // Evita divisão por 0 caso o arquivo não tenho nenhum valor com o robô parado
+        if (numSamples > 0) 
+            offset = acumOffset / ((double) numSamples);
 
         file.close();
 

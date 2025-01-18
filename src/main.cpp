@@ -13,29 +13,25 @@ int main() {
     // Variação angular com base na velocidade angular do eixo z
     double angVariation = 0.;
 
-    // Converte o GYRO_FREQ em double
-    const double sampleTimeSec = std::chrono::duration<double>(GYRO_FREQ).count();
-
-    // TODO: Tirar a espera ocupada quando a flag é falsa
-    // Talvez fazer a thread dormir dps de executar o corpo do loop e tirar a interrupção
+    // Converte o FETCH_TIME em segundos
+    const double fetchTimeSec = std::chrono::duration<double>(FETCH_TIME).count();
     
     // Loop de execução
     while (true) {
-        // Só executa se a flag estiver true (a cada 10ms -> frequência fixa)
-        if (gyroOdm.getGyroFlag() == true) {
+        // Variável que armazena o valor da velocidade angular em z do sample anterior  
+        double prevAngVelocityZ = angVelocity[2];
 
-            // Variável que armazena o valor da velocidade angular em z do sample anterior  
-            double prevAngVelocity = angVelocity[2];
+        // Atualiza a velocidade angular (rad/s) de cada eixo
+        gyroOdm.getAngularVelocity(angVelocity);
 
-            // Atualiza a velocidade angular (rad/s) de cada eixo e inverte a gyroFlag_
-            gyroOdm.getAngularVelocity(angVelocity);
+        // Calcula a velocidade média entre os samples para ter um resultado mais preciso
+        double avgAngVelocityZ = (prevAngVelocityZ + angVelocity[2]) / 2.;
 
-            // Calcula a velocidade média entre os samples para ter um resultado mais preciso
-            double avgAngVelocity = (prevAngVelocity + angVelocity[2]) / 2.;
+        // Calcula a variação angular considerando o intervalo de 10ms entre os samples
+        angVariation += (avgAngVelocityZ * fetchTimeSec);
 
-            // Calcula a variação angular considerando o intervalo de 10ms entre os samples
-            angVariation += (avgAngVelocity * sampleTimeSec);
-        }
+        // Faz a thread dormir por 5ms para manter a frequência de leitura fixa
+        ThisThread::sleep_for(FETCH_TIME); // Evita espera ocupada do loop
     }
 
     return 0;
