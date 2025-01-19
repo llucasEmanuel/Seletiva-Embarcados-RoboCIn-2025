@@ -6,7 +6,7 @@ GyroOdometry::GyroOdometry(PinName sda, PinName scl) : mpu_(sda, scl) {
 }
 
 void GyroOdometry::setup() {
-    // Inicializa a MPU6050
+    // Inicializa a MPU6050 com as configurações padrões
     this->mpu_.setup();
 
     // Obtém o fator de conversão da velocidade angular
@@ -34,14 +34,14 @@ void GyroOdometry::getAngularVelocity(double *angVelocity) {
 }
 
 double GyroOdometry::getGyroSensitivity() {
-    char config;
-    // Lê o registrador GYRO_CONFIG e armazena em config
-    this->mpu_.getGyroConfig(&config);
+    char gyroConfig;
+    // Lê o registrador GYRO_CONFIG e armazena em gyroConfig
+    this->mpu_.getGyroConfig(&gyroConfig);
 
     // Seleciona apenas os bits 3 e 4 do registrador
-    char config_3_4 = config & 0b00011000;
+    char gyroConfig34 = gyroConfig & 0b00011000;
     // Faz o shift do valor para isolar o fs_sel
-    char fs_sel = config_3_4 >> 3;    
+    char fs_sel = gyroConfig34 >> 3;    
 
     double sensitivity;
     // Seleciona o valor da sensibilidade de acordo com o fs_sel

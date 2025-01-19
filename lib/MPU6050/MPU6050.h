@@ -26,7 +26,7 @@
 #define MASTER_SDA PB_9
 #define MASTER_SCL PB_8
 
-// Frequência do I2C para o fast mode (FM)
+// Frequência do I2C para o fast mode (FM) = 400kHz
 #define FM_FREQ 400000
 
 // Interface de comunicação do mestre com a MPU6050
@@ -55,8 +55,8 @@ public:
     // Altera a configuração do giroscópio (self-tests e full scale range)
     void setGyroConfig(
         unsigned char xg_st = 0, // Não faz self-test no x
-        unsigned char yg_st = 0, // Não faz self-test no x
-        unsigned char zg_st = 0, // Não faz self-test no x
+        unsigned char yg_st = 0, // Não faz self-test no y
+        unsigned char zg_st = 0, // Não faz self-test no z
         unsigned char fs_sel = 3 // Full scale range = +- 2000 graus/s -> 16.4 LSB/(grau/s)
     );
 

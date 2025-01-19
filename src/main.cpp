@@ -1,6 +1,6 @@
 #include <GyroOdometry.h>
 
-// Instanciação do módulo de odometria do giroscópio
+// Instanciação da odometria do giroscópio
 GyroOdometry gyroOdm;
 
 int main() {
@@ -13,7 +13,7 @@ int main() {
     // Variação angular com base na velocidade angular do eixo z
     double angVariation = 0.;
 
-    // Converte o FETCH_TIME em segundos
+    // Converte o FETCH_TIME(5ms) em segundos
     const double fetchTimeSec = std::chrono::duration<double>(FETCH_TIME).count();
     
     // Loop de execução
@@ -24,13 +24,13 @@ int main() {
         // Atualiza a velocidade angular (rad/s) de cada eixo
         gyroOdm.getAngularVelocity(angVelocity);
 
-        // Calcula a velocidade média entre os samples para ter um resultado mais preciso
+        // Calcula a velocidade angular média entre o sample atual e o anterior para um resultado mais preciso
         double avgAngVelocityZ = (prevAngVelocityZ + angVelocity[2]) / 2.;
 
-        // Calcula a variação angular considerando o intervalo de 10ms entre os samples
+        // Calcula a variação angular considerando o intervalo de FETCH_TIME entre os samples
         angVariation += (avgAngVelocityZ * fetchTimeSec);
 
-        // Faz a thread dormir por 5ms para manter a frequência de leitura fixa
+        // Faz a thread dormir por FETCH_TIME para manter a frequência de leitura fixa
         ThisThread::sleep_for(FETCH_TIME); // Evita espera ocupada do loop
     }
 
