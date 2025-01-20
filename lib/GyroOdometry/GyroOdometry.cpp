@@ -3,6 +3,9 @@
 GyroOdometry::GyroOdometry(PinName sda, PinName scl) : mpu_(sda, scl) {
     this->offset_ = 0.;
     this->sensitivity_ = 16.4; // +- 2000 graus/s
+    for (int i = 0; i < 3; i++)
+        this->angVelocity_[i] = 0.;
+    this->angVariation_ = 0.;
 }
 
 void GyroOdometry::setup() {
@@ -16,21 +19,47 @@ void GyroOdometry::setup() {
     this->offset_ = this->mpu_.getGyroOffset();
 }
 
-void GyroOdometry::getAngularVelocity(double *angVelocity) {
+void GyroOdometry::update() {
+    // Salva o valor do sample anterior
+    double prevAngVelocity = this->angVelocity_[2];
+
+    // Atualiza o array de velocidades angulares
+    this->updateAngularVelocity();
+
+    // Calcula a média das velocidades usando o sample anterior e o atual para ter um resultado mais preciso
+    double avgAngVelocityZ = (prevAngVelocity + this->angVelocity_[2]) / 2.;
+
+    // Converte o tempo entre os samples (5ms) de milisegundos para segundos
+    const double fetchTimeSec = std::chrono::duration<double>(FETCH_TIME).count();
+
+    // Atualiza a variação angular
+    this->angVariation_ += (avgAngVelocityZ * fetchTimeSec);
+}
+
+double GyroOdometry::getAngularVelocityZ() {
+    return this->angVelocity_[2];
+}
+
+double GyroOdometry::getAngularVariation() {
+    return this->angVariation_;
+}
+
+
+void GyroOdometry::updateAngularVelocity() {
     short gyroOut[3];
     // Obtém o output do giroscópio antes de ser processado
     this->getGyroRawOut(gyroOut);
 
     // Converte da escala LSB para graus/s -> graus/s = LSB / (LSB/(graus/s))
     for (int i = 0; i < 3; i++) {
-        angVelocity[i] = ((double) gyroOut[i] / this->sensitivity_);
+        this->angVelocity_[i] = ((double) gyroOut[i] / this->sensitivity_);
     }
 
     // Calibra o resultado do eixo z
-    angVelocity[2] -= this->offset_;
+    this->angVelocity_[2] -= this->offset_;
 
     // Converte de graus/s para rad/s
-    this->degreesToRadians(angVelocity);
+    this->degreesToRadians();
 }
 
 double GyroOdometry::getGyroSensitivity() {
@@ -69,10 +98,10 @@ void GyroOdometry::getGyroRawOut(short *buffer) {
     this->mpu_.getGyroOut(buffer);
 }
 
-void GyroOdometry::degreesToRadians(double *angVelocity) {
+void GyroOdometry::degreesToRadians() {
     const double convFactor = PI / 180.;
     // Multiplica graus/s pelo fator de conversão e obtém rad/s
     for (int i = 0; i < 3; i++) {
-        angVelocity[i] = convFactor * angVelocity[i];
+        this->angVelocity_[i] = convFactor * this->angVelocity_[i];
     }
 }

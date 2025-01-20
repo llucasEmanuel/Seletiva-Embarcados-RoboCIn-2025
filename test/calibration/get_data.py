@@ -4,17 +4,11 @@ import pandas as pd
 CSV_PATH = "test/calibration/data/filtered_robot_log.csv"
 log = pd.read_csv(CSV_PATH)
 
-# Transforma a coluna do data frame em list
-w_list = log["local_w"].tolist()
-theta_list = log["odometry_theta"].tolist()
+# Log em que só existem registros com o theta = 0
+null_log = log[log["odometry_theta"] == 0]
 
-# Considerando que os valores iniciais correspondem ao robô parado como no dataset fornecido
-# Encontra o indice da lista em que o theta != 0, ou seja ele não está mais parado
-non_steady_index = 0
-for i in range(len(theta_list)):
-    if theta_list[i] != 0:
-        non_steady_index = i
-        break
+# Faz uma lista com os valores da velocidade angular
+steady_w = null_log["local_w"].to_list()
 
 soma = 0 # DEBUG
 
@@ -22,14 +16,14 @@ soma = 0 # DEBUG
 W_PATH = "test/calibration/data/steady_w.txt"
 with open(W_PATH, "w") as file:
     # Se houver velocidade angular com o robô parado
-    if non_steady_index != 0:
+    if len(steady_w) != 0:
         # Escreve apenas as velocidades angulares de quando o robô está parado no steady_w.txt
-        for i in range(non_steady_index):
-            file.write(f"{w_list[i]}\n")
-            soma += w_list[i] # DEBUG
+        for w in steady_w:
+            file.write(f"{w}\n")
+            soma += w # DEBUG
         print(f"Gyroscope offset data successfully written to '{W_PATH}'")
 
-        print(float(soma) / float(non_steady_index)) # DEBUG (calcular offset)
+        print(float(soma) / float(len(steady_w))) # DEBUG (calcular offset)
 
     # Se não houver apenas printa a mensagem, pois já sobrescreveu os valores anteriores
     else:

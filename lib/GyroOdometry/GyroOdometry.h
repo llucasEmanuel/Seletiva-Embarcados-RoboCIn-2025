@@ -17,9 +17,17 @@ public:
 
     // Inicialização dos atributos necessários
     void setup();
+
+    // Atualiza os sample e calcula o valor com base neles
+    void update();
     
-    // Calcula a velocidade angular em rad/s e armazena em angVelocity
-    void getAngularVelocity(double *angVelocity);
+    // Retorna o valor da velocidade angular no eixo z em rad/s
+    // Recomendável usar apenas após o update (coleta o sample mais recente)
+    double getAngularVelocityZ();
+
+    // Retorna o valor da variação angular em rad
+    // Recomendável usar apenas após o update (coleta o sample mais recente)
+    double getAngularVariation();
 
 private:
     // Instanciação da MPU6050, que se comunicará com a Nucleo f767zi
@@ -31,6 +39,15 @@ private:
     // Fator usado na conversão para velocidade angular
     double sensitivity_;
 
+    // Armazena as velocidades angulares do último sample
+    double angVelocity_[3];
+
+    // Armazena a variação angular do último sample
+    double angVariation_;
+
+    // Calcula a velocidade angular em rad/s e armazena em angVelocity_
+    void updateAngularVelocity();
+
     // Obtém o valor da sensibilidade do giroscópio
     double getGyroSensitivity();
 
@@ -38,7 +55,7 @@ private:
     void getGyroRawOut(short *buffer);
 
     // Converte a velocidade angular de graus/s para rad/s (sobrescreve o valor do array)
-    void degreesToRadians(double *angVelocity);
+    void degreesToRadians();
 };
 
 #endif

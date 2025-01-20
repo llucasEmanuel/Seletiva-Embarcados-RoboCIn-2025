@@ -49,9 +49,9 @@ void MPU6050::getGyroOut(short *buffer) {
     this->burstRead(&regAddress, gyroOut, GYRO_OUT_NUM);
 
     // Usa os regs H e L para montar o valor de 16 bits
-    short xOut = (gyroOut[0] << 8) | gyroOut[1];
-    short yOut = (gyroOut[2] << 8) | gyroOut[3];
-    short zOut = (gyroOut[4] << 8) | gyroOut[5];
+    short xOut = (short) gyroOut[0] << 8 | (short) gyroOut[1];
+    short yOut = (short) gyroOut[2] << 8 | (short) gyroOut[3];
+    short zOut = (short) gyroOut[4] << 8 | (short) gyroOut[5];
 
     // Cada elemento do buffer é uma componente das medidas do giroscópio
     buffer[0] = xOut;
