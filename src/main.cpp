@@ -16,7 +16,7 @@ int main() {
         // Armazena a velocidade angular de z
         double angVelocityZ = gyroOdm.getAngularVelocityZ();
 
-        // Variação angular com base na velocidade angular do eixo z
+        // Armazena a variação angular com base na velocidade angular de z
         double angVariation = gyroOdm.getAngularVariation();
 
         printf("Angular Velocity Z: %lf\tAngular Variation: %lf\n", angVelocityZ, angVariation);

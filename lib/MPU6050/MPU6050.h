@@ -11,7 +11,11 @@
 // Número de registradores que geram output do giroscópio
 #define GYRO_OUT_NUM 6
 
-// Registrador de configurações
+// Registradores que definem o sample rate
+#define SMPLRT_DIV 0x19
+#define CONFIG 0x1A
+
+// Registrador de configurações do giroscópio
 #define GYRO_CONFIG 0x1B // 0d27
 
 // Registradores de output
@@ -62,6 +66,12 @@ public:
 
     // Obtém a configuração atual do registrador para saber o full scale range
     void getGyroConfig(char *buffer);
+
+    // Escreve no registrador SMPLRT_DIV (padrão -> sample rate = 8kHz = gyroscope output rate / (1 + SMPLRT_DIV))
+    void setSampleRateDiv(char smplrt_div = 0);
+
+    // Escreve no registrador CONFIG (padrão -> gyroscope output rate = 8kHZ)
+    void setConfig(unsigned char ext_sync_set = 0, unsigned char dlpf_cfg = 0);
 
     // Retorna o offset de leitura do sensor que será usado para calibrá-lo
     double getGyroOffset();

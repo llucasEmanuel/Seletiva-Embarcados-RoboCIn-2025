@@ -7,6 +7,10 @@ MPU6050::MPU6050(PinName sda, PinName scl) : i2c_(sda, scl) {
 }
 
 void MPU6050::setup() {
+    // Configura o sample rate do giroscópio para 8kHz (fast mode)
+    this->setConfig();
+    this->setSampleRateDiv();
+
     // Configura a sensibilidade correta do sensor
     this->setGyroConfig();
 }
@@ -81,11 +85,35 @@ void MPU6050::setGyroConfig(unsigned char xg_st, unsigned char yg_st, unsigned c
 }
 
 void MPU6050::getGyroConfig(char *buffer) {
-    // Endereço do registrador de configuração
+    // Endereço do registrador de configuração do giroscópio
     char regAddress = GYRO_CONFIG;
 
     // Lê o byte do GYRO_CONFIG
     this->readReg(&regAddress, buffer);
+}
+
+void MPU6050::setSampleRateDiv(char smplrt_div) {
+    // Endereço do registrador SMPLRT_DIV
+    char regAddress = SMPLRT_DIV;
+    // Escreve no registrador SMPLRT_DIV
+    this->writeReg(&regAddress, &smplrt_div);
+}
+
+void MPU6050::setConfig(unsigned char ext_sync_set, unsigned char dlpf_cfg) {
+    // Valores disponíveis para ext_sync_sel e dlpf_cfg = {0, 1, 2, 3}
+    if (ext_sync_set > 4 || dlpf_cfg > 4) return;
+    
+    // Endereço do registrador de configuração geral
+    char regAddress = CONFIG;
+
+    // Formata o ext_sync_set
+    ext_sync_set = ext_sync_set << 3;
+
+    // Monta o formato do valor que será escrito no registrador
+    char byte = ext_sync_set | dlpf_cfg;
+
+    // Escreve no registradir CONFIG
+    this->writeReg(&regAddress, &byte);
 }
 
 double MPU6050::getGyroOffset() {
