@@ -21,7 +21,7 @@ int main() {
 
         printf("Angular Velocity Z: %lf\tAngular Variation: %lf\n", angVelocityZ, angVariation);
 
-        // Faz a thread dormir por FETCH_TIME para manter a frequência fixa
+        // Faz a thread dormir por FETCH_TIME(=5ms) para manter a frequência fixa
         ThisThread::sleep_for(FETCH_TIME); // Evita espera ocupada do loop
     }
 
