@@ -3,10 +3,8 @@
 
 #include "mbed.h"
 
-// Slave address da MPU-6050
-#define MPU6050_ADDRESS 0b1101000 // LSB é determinado pelo nivel lógico do pino AD0
-// Poderia primeiro ler o AD0 para saber se o LSB é 0 (AD0 LOW) ou 1 (AD0 HIGH)
-// O R/W bit precisa ser 1 para o mestre ler os registradores do sensor
+// Slave address da MPU-6050 considerando AD0 = 0
+#define MPU6050_ADDRESS 0b1101000 
 
 // Número de registradores que geram output do giroscópio
 #define GYRO_OUT_NUM 6
@@ -25,6 +23,9 @@
 #define GYRO_YOUT_L 0x46 // 0d70
 #define GYRO_ZOUT_H 0x47 // 0d71
 #define GYRO_ZOUT_L 0x48 // 0d72
+
+// Registrador de Power Management
+#define PWR_MGMT_1 0x6B
 
 // Pinos de I2C1 da nucleo f767zi
 #define MASTER_SDA PB_9
@@ -52,6 +53,9 @@ public:
 
     // Escreve o valor de buffer no registrador regAddress
     void writeReg(char *regAddress, char *buffer);
+
+    // Tira a MPU6050 do sleep mode
+    void wakeUp();
 
     // Escreve os outputs do giroscópio em buffer
     void getGyroOut(short *buffer);

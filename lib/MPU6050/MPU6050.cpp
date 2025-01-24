@@ -7,6 +7,9 @@ MPU6050::MPU6050(PinName sda, PinName scl) : i2c_(sda, scl) {
 }
 
 void MPU6050::setup() {
+    // Acorda do sleep mode quando inicializada
+    this->wakeUp();
+
     // Configura o sample rate do giroscópio para 8kHz (fast mode)
     this->setConfig();
     this->setSampleRateDiv();
@@ -40,6 +43,13 @@ void MPU6050::writeReg(char *regAddress, char *buffer) {
 
     // Escreve o dado de buffer no registrador regAddress
     this->i2c_.write(mpuAddress8bit, buffer, 1);
+}
+
+void MPU6050::wakeUp() {
+    char regAddress = PWR_MGMT_1;
+    char byte = 0;
+    // Escreve 0 em todo o registrador para tirar do sleep mode
+    this->writeReg(&regAddress, 0);
 }
 
 void MPU6050::getGyroOut(short *buffer) {
