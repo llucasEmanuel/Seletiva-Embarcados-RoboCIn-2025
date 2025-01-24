@@ -82,6 +82,15 @@ void MPU6050::setGyroConfig(unsigned char xg_st, unsigned char yg_st, unsigned c
 
     // Escreve no GYRO_CONFIG
     this->writeReg(&regAddress, &byte);
+
+    char buffer = 65;
+    this->getGyroConfig(&buffer);
+
+    while (1) {
+        printf("valor escrito: %d\n", byte);
+        printf("valor lido %d\n", buffer);
+    }
+    
 }
 
 void MPU6050::getGyroConfig(char *buffer) {
@@ -118,13 +127,16 @@ void MPU6050::setConfig(unsigned char ext_sync_set, unsigned char dlpf_cfg) {
 
 double MPU6050::getGyroOffset() {
     // Caminho do arquivo com os samples de velocidade angular em que o robô está parado
-    const char path[] = "test/calibration/steady_w.txt";
+    const char path[] = "Seletiva RoboCIn 2025 Embarcados/lib/MPU6050/steady_w.txt";
 
     // Abre o arquivo para leitura
     std::ifstream file(path);
 
     // Se não encontrar o arquivo retorna offset 0 por padrão
-    if (!file) return 0;
+    if (!file) {
+        printf("File not found\n");
+        return 0;
+    }
     // Se encontrar calcula a média das velocidades angulares nele
     else {
         double offset = 0, acumOffset = 0;

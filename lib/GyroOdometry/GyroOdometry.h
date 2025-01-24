@@ -1,7 +1,7 @@
 #ifndef GYROODOMETRY_H
 #define GYROODOMETRY_H
 
-#include "MPU6050.h"
+#include <MPU6050.h>
 
 // Usado na conversão de graus para radianos
 #define PI 3.14159265358979323846
@@ -9,14 +9,18 @@
 // Intervalo de tempo em que os dados do giroscópio serão levados para o mestre
 #define FETCH_TIME 5ms
 
+// Pinos de I2C1 da nucleo f767zi
+#define MASTER_SDA PB_9
+#define MASTER_SCL PB_8
+
 // Classe que implementa os métodos de odometria apenas do giroscópio
 class GyroOdometry {
 public:
     // Construtor seta os pinos SDA e SCL como sendo os do mestre (nucleo f767zi) por padrão 
     GyroOdometry(PinName sda = MASTER_SDA, PinName scl = MASTER_SCL);
 
-    // Inicialização dos atributos necessários
-    void setup();
+    // Inicialização dos atributos necessários (Retorna se a mpu está funcionando)
+    bool setup();
 
     // Atualiza os sample e calcula o valor com base neles
     void update();
@@ -36,9 +40,6 @@ private:
     // Offset de leitura do giroscópio
     double offset_;
 
-    // Fator usado na conversão para velocidade angular
-    double sensitivity_;
-
     // Armazena as velocidades angulares do último sample
     double angVelocity_[3];
 
@@ -48,14 +49,14 @@ private:
     // Calcula a velocidade angular em rad/s e armazena em angVelocity_
     void updateAngularVelocity();
 
-    // Obtém o valor da sensibilidade do giroscópio
-    double getGyroSensitivity();
-
     // Obtém o output bruto do giroscópio e armazena em buffer
-    void getGyroRawOut(short *buffer);
+    void getGyroRawOut(int16_t *buffer);
 
     // Converte a velocidade angular de graus/s para rad/s (sobrescreve o valor do array)
     void degreesToRadians();
+
+    // Calcula o offset do giroscópio
+    double getGyroOffset();
 };
 
 #endif

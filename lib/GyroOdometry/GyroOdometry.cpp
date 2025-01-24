@@ -1,22 +1,25 @@
 #include "GyroOdometry.h"
+#include <fstream>
 
 GyroOdometry::GyroOdometry(PinName sda, PinName scl) : mpu_(sda, scl) {
     this->offset_ = 0.;
-    this->sensitivity_ = 16.4; // +- 2000 graus/s
+    this->angVariation_ = 0.;
     for (int i = 0; i < 3; i++)
         this->angVelocity_[i] = 0.;
-    this->angVariation_ = 0.;
 }
 
-void GyroOdometry::setup() {
+bool GyroOdometry::setup() {
     // Inicializa a MPU6050 com as configurações padrões
-    this->mpu_.setup();
+    bool mpuWorking = this->mpu_.initialize();
 
-    // Obtém o fator de conversão da velocidade angular
-    this->sensitivity_ = this->getGyroSensitivity();
+    // Seta o sample rate como 8kHz
+    this->mpu_.setDLPFConfig(0); // Seta o DLPF_CFG como 0 
+    this->mpu_.setSampleRate(0x00); // Seta o SMPLRT_DIV como 0
 
     // Faz o cálculo do offset com base nos dados do arquivo apenas na inicialização
-    this->offset_ = this->mpu_.getGyroOffset();
+    this->offset_ = this->getGyroOffset();
+
+    return mpuWorking;
 }
 
 void GyroOdometry::update() {
@@ -46,14 +49,11 @@ double GyroOdometry::getAngularVariation() {
 
 
 void GyroOdometry::updateAngularVelocity() {
-    short gyroOut[3];
-    // Obtém o output do giroscópio antes de ser processado
-    this->getGyroRawOut(gyroOut);
+    double gyroOut[3];
+    // Lê o output do giroscópio já em grau/s (já foi convertido de LSB/grau/s)
+    this->mpu_.readGyro(gyroOut);
 
-    // Converte da escala LSB para graus/s -> graus/s = LSB / (LSB/(graus/s))
-    for (int i = 0; i < 3; i++) {
-        this->angVelocity_[i] = ((double) gyroOut[i] / this->sensitivity_);
-    }
+    printf("offset: %lf\n", this->offset_);
 
     // Calibra o resultado do eixo z
     this->angVelocity_[2] -= this->offset_;
@@ -62,40 +62,8 @@ void GyroOdometry::updateAngularVelocity() {
     this->degreesToRadians();
 }
 
-double GyroOdometry::getGyroSensitivity() {
-    char gyroConfig;
-    // Lê o registrador GYRO_CONFIG e armazena em gyroConfig
-    this->mpu_.getGyroConfig(&gyroConfig);
-
-    // Seleciona apenas os bits 3 e 4 do registrador
-    char gyroConfig34 = gyroConfig & 0b00011000;
-    // Faz o shift do valor para isolar o fs_sel
-    char fs_sel = gyroConfig34 >> 3;    
-
-    double sensitivity;
-    // Seleciona o valor da sensibilidade de acordo com o fs_sel
-    switch (fs_sel) {
-        case 0:
-            sensitivity = 131.;
-            break;
-        case 1:
-            sensitivity = 65.5;
-            break;
-        case 2:
-            sensitivity = 32.8;
-            break;
-        case 3:
-            sensitivity = 16.4;
-            break;
-        default:
-            break;
-    }
-
-    return sensitivity;
-}
-
-void GyroOdometry::getGyroRawOut(short *buffer) {
-    this->mpu_.getGyroOut(buffer);
+void GyroOdometry::getGyroRawOut(int16_t *buffer) {
+    this->mpu_.readGyroRaw(buffer);
 }
 
 void GyroOdometry::degreesToRadians() {
@@ -103,5 +71,38 @@ void GyroOdometry::degreesToRadians() {
     // Multiplica graus/s pelo fator de conversão e obtém rad/s
     for (int i = 0; i < 3; i++) {
         this->angVelocity_[i] = convFactor * this->angVelocity_[i];
+    }
+}
+
+double GyroOdometry::getGyroOffset() {
+    // Caminho do arquivo com os samples de velocidade angular em que o robô está parado
+    const char path[] = "test/calibration/data/steady_w.txt";
+
+    // Abre o arquivo para leitura
+    std::ifstream file(path);
+
+    // Se não encontrar o arquivo retorna offset 0 por padrão
+    if (!file) {
+        printf("File not found\n");
+        return 0;
+    }
+    // Se encontrar calcula a média das velocidades angulares nele
+    else {
+        double offset = 0, acumOffset = 0;
+        int numSamples = 0;
+
+        // Lê linha por linha do arquivo
+        while (file >> offset) {
+            acumOffset += offset;
+            numSamples++;
+        }
+
+        // Evita divisão por 0 caso o arquivo não tenho nenhum valor com o robô parado
+        if (numSamples > 0) 
+            offset = acumOffset / (double) numSamples;
+
+        file.close();
+
+        return offset;
     }
 }

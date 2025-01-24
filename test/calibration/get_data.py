@@ -13,7 +13,7 @@ steady_w = null_log["local_w"].to_list()
 soma = 0 # DEBUG
 
 # Abre o arquivo W_PATH e sobrescreve o anterior
-W_PATH = "test/calibration/data/steady_w.txt"
+W_PATH = "lib/MPU6050/steady_w.txt"
 with open(W_PATH, "w") as file:
     # Se houver velocidade angular com o robô parado
     if len(steady_w) != 0:

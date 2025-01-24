@@ -3,10 +3,9 @@
 
 #include "mbed.h"
 
-// Slave address da MPU-6050
+// Slave address da MPU-6050 considerando AD0 = 0
 #define MPU6050_ADDRESS 0b1101000 // LSB é determinado pelo nivel lógico do pino AD0
-// Poderia primeiro ler o AD0 para saber se o LSB é 0 (AD0 LOW) ou 1 (AD0 HIGH)
-// O R/W bit precisa ser 1 para o mestre ler os registradores do sensor
+
 
 // Número de registradores que geram output do giroscópio
 #define GYRO_OUT_NUM 6
