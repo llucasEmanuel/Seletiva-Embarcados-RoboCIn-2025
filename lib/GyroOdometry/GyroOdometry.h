@@ -9,6 +9,9 @@
 // Intervalo de tempo em que os dados do giroscópio serão levados para o mestre
 #define FETCH_TIME 5ms
 
+// Garante que o ângulo seja 0 para baixas variações (complementar à calibração de offset)
+#define GYRO_TOLERANCE 9.64e-05 // Valor obtido por testes em 'test/tolerance'
+
 // Pinos de I2C1 da nucleo f767zi
 #define MASTER_SDA PB_9
 #define MASTER_SCL PB_8

@@ -4,27 +4,19 @@ import pandas as pd
 CSV_PATH = "test/calibration/data/filtered_robot_log.csv"
 log = pd.read_csv(CSV_PATH)
 
-# Log em que só existem registros com o theta = 0
-null_log = log[log["odometry_theta"] == 0]
-
 # Faz uma lista com os valores da velocidade angular
-steady_w = null_log["local_w"].to_list()
-
-soma = 0 # DEBUG
+w_list = log["local_w"].to_list()
 
 # Abre o arquivo W_PATH e sobrescreve o anterior
-W_PATH = "test/calibration/data/steady_w.txt"
+W_PATH = "test/results/w_input.txt"
 with open(W_PATH, "w") as file:
     # Se houver velocidade angular com o robô parado
-    if len(steady_w) != 0:
+    if len(w_list) != 0:
         # Escreve apenas as velocidades angulares de quando o robô está parado no steady_w.txt
-        for w in steady_w:
+        for w in w_list:
             file.write(f"{w}\n")
-            soma += w # DEBUG
-        print(f"Gyroscope offset data successfully written to '{W_PATH}'")
-
-        print(float(soma) / float(len(steady_w))) # DEBUG (calcular offset)
+        print(f"Gyroscope data successfully written to '{W_PATH}'")
 
     # Se não houver apenas printa a mensagem, pois já sobrescreveu os valores anteriores
     else:
-        print("No gyroscope offset data available in the dataset")
+        print("No gyroscope data available in the dataset")

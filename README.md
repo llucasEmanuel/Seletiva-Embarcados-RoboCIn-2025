@@ -3,6 +3,7 @@ Implementação da comunicação entre uma [MPU-6050](https://invensense.tdk.com
 
 ### Importante:
 O branch *'main'* contém o código usando a minha implementação da biblioteca MPU6050, já o branch *'version-2'* contém o código com as mesmas funcionalidades, mas usando a biblioteca MPU6050 do [firmware SSL](https://github.com/robocin/ssl-firmware/tree/main) disponibilizada pelo RobôCIn.
+Além disso, no diretório 'test/' estão alguns arquivos que foram usados para calcular alguns valores importantes do projeto e, também, visualizar os resultados obtidos usand os inputs do log fornecido.
 
 ## Visão Geral do Projeto
 O objetivo principal é coletar o output do giroscópio, que corresponde à velocidade angular da MPU-6050, nos registradores do sensor e enviá-los para a NUCLEO-F767ZI. Com os dados na placa, é feita primeiro a conversão de LSB/(grau/s) para grau/s. No entanto, normalmente o dado medido pelo giroscópio possui um offset e é preciso calibrá-lo na placa. Dessa forma, usando o log de medidas fornecido, foi calculado o offset e subtraído do resultado bruto medido, obtendo a velocidade angular calibrada. Após isso, a velocidade angular é convertida para rad/s e ela é usada para obter a variação angular do robô. Como a velocidade angular é calculada a uma frequência fixa, usamos esse intervalo entre os cálculos e a média das velocidades angulares para obter uma variação angular mais precisa.
