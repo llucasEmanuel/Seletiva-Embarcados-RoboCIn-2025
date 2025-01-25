@@ -32,8 +32,19 @@ void GyroOdometry::update() {
     // Converte o tempo entre os samples (5ms) de milisegundos para segundos
     const double fetchTimeSec = std::chrono::duration<double>(FETCH_TIME).count();
 
-    // Atualiza a variação angular
-    this->angVariation_ += (avgAngVelocityZ * fetchTimeSec);
+    // Calcula a variação do ângulo do fetch anterior até esse
+    double deltaTheta = avgAngVelocityZ * fetchTimeSec;
+
+    // deltaTheta precisa ser maior ou igual que a tolerância para ser relevante
+    if (fabs(deltaTheta) >= GYRO_TOLERANCE) {
+        this->angVariation_ += deltaTheta;
+        // Limita a variação angular a [-PI, +PI]
+        if (this->angVariation_ > PI) {
+            this->angVariation_ -= 2 * PI;
+        } else if (this->angVariation_ < -PI) {
+            this->angVariation_ += 2 * PI;
+        }
+    }
 }
 
 double GyroOdometry::getAngularVelocityZ() {
